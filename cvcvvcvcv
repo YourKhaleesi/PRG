@@ -1,0 +1,155 @@
+#include <stdio.h>
+
+const double PI = 3.14159265359; 
+
+// Typdefinitionen in vier Schritten
+
+// 1. Schritt: Sie einzelnen struct-Typen definieren
+typedef struct {
+	// keine Parameter
+} Point; 
+
+typedef struct {
+	int length; 
+} Line; 
+
+typedef struct {
+	int height; 
+	int width; 
+} Rectangle; 
+
+typedef struct {
+	int radius; 
+} Circle; 
+
+// 2. Schritt: Die möglichen Typen in einem union-Typen zusammenfassen
+typedef union {
+	Point point; 
+	Line line; 
+	Rectangle rectangle; 
+	Circle circle; 
+} GeoVariant; 
+
+// 3. Schritt: Enumeration für die Unterscheidung definieren
+typedef enum {POINT,LINE,RECTANGLE,CIRCLE} GeoType; 
+
+// 4. Schritt: union und enum in einem weiteren struct zusammenführen
+typedef struct {
+	GeoVariant variant; 
+	GeoType type; 
+} GeoFigur; 
+
+// Funktionsschnittstellen als Prototypen
+// 5. Schritt: Funktionen zum Einlesen der nötigen Daten von der Konsole
+GeoFigur getGeoFigur(void);
+Line getLine(void);
+Rectangle getRectangle(void);
+Circle getCircle(void);   
+GeoType getGeoType(void); 
+
+// 6. Schritt: Funktionen zur Berechnung und Ausgabe von Umfang und Flächeninhalt
+void calculateGeoFigur(GeoFigur geoFigur);
+
+// main-Funktion für den Aufruf der Funktionen 
+int main(void){
+	GeoFigur figur = getGeoFigur(); 
+	calculateGeoFigur(figur); 
+	return 0;
+}
+
+// Implementierung der Funktionen
+GeoFigur getGeoFigur(void) {
+	printf("Geometrische Figur erfassen:\n"); 
+	GeoFigur figur; 
+	GeoType type = getGeoType();
+	figur.type = type; 
+	switch(type) {
+		case POINT:
+			Point point = {}; 
+			figur.variant.point = point; 
+			break; 
+		case LINE:
+			Line line = getLine(); 
+			figur.variant.line = line; 
+			break; 
+		case RECTANGLE: 
+			Rectangle rectangle = getRectangle(); 
+			figur.variant.rectangle = rectangle; 
+			break; 
+		case CIRCLE: 
+			Circle circle = getCircle(); 
+			figur.variant.circle = circle; 
+			break; 
+	}
+	return figur; 
+}
+
+void calculateGeoFigur(GeoFigur geoFigur) {
+	// Es wäre denkbar gewesen für die jeweilige Berechnung auch Hilfsfunktionen zu schreiben
+	printf("\n\nUmfang und Flächeninhalt:\n"); 
+	switch(geoFigur.type) {
+		case POINT:
+			printf("\tEin Punkt hat weder Umfang noch Flächeninhalt"); 
+			break; 
+		case LINE:
+			printf("\tEine Linie hat weder Umfang noch Flächeninhalt"); 
+			break; 
+		case RECTANGLE: { // Blockdefinition hier nötig, da wir Variablen im case-Statement deklarieren
+			int width = geoFigur.variant.rectangle.width; 
+			int height = geoFigur.variant.rectangle.height; 
+			printf("\tUmfang (Rechteck): %i\n",(2 * width + 2 * height )); 
+			printf("\tFlächeninhalt (Rechteck): %i\n",width * height); 
+			break; }
+		case CIRCLE: { // Blockdefinition hier nötig, da wir Variablen im case-Statement deklarieren
+			double radius = geoFigur.variant.circle.radius; 
+			printf("\tUmfang (Kreis): %lf\n",(2 * radius * PI )); 
+			printf("\tFlächeninhalt (Kreis): %lf\n", radius * radius * PI); 
+			break; }
+	}
+}
+
+GeoType getGeoType(void) {
+		GeoType type; 
+	printf("\t GeoType eingeben:\n");
+	printf("\t\t 0 = Punkt \n");
+	printf("\t\t 1 = Linie \n");
+	printf("\t\t 2 = Rechteck \n");
+	printf("\t\t 3 = Kreis \n");
+	printf("\t GeoType: ");
+	if (scanf("%i", &type) != 1 || type < POINT || type > CIRCLE ) {
+		fflush(stdin); 
+		printf("\t Ungültige Eingabe!\n"); 
+		type = getGeoType(); // Rekursion bis zur gültigen Eingabe...
+	} 
+	return type; 
+}
+
+Line getLine(void) {
+	// Auf eine Validierung der Eingabe wurde hier verzichtet, sie wäre jedoch ggf. sinnvoll
+	int length = -1; 
+	printf("\t Länge: ");
+	scanf("%i", &length); 
+	Line line = {length}; 
+	return line; 
+}
+
+Rectangle getRectangle(void) {
+	// Auf eine Validierung der Eingabe wurde hier verzichtet, sie wäre jedoch ggf. sinnvoll
+	int width = -1; 
+	int height = -1; 
+	printf("\t Höhe: ");
+	scanf("%i", &height); 
+	printf("\t Breite: ");
+	scanf("%i", &width); 
+	Rectangle rectangle = {height,width};  
+	return rectangle; 
+}
+
+Circle getCircle(void) {
+	// Auf eine Validierung der Eingabe wurde hier verzichtet, sie wäre jedoch ggf. sinnvoll
+	int radius = -1; 
+	printf("\t Radius: ");
+	scanf("%i", &radius); 
+	Circle circle = {radius}; 
+	return circle; 
+}
